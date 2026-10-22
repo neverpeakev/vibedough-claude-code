@@ -1,0 +1,59 @@
+{
+  "name": "goodwait",
+  "version": "0.9.0",
+  "description": "Goodwait for Claude Code: a sponsored line above the prompt while Claude works, and you earn a share of the ad revenue from your own waits (/earn).",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "site": {
+      "type": "string",
+      "description": "Your Goodwait site key (2-41 chars: a-z, 0-9, dash). Default 'claude-code' serves paid ads and counts every wait; 'sandbox' shows a house ad and counts nothing.",
+      "default": "claude-code",
+      "title": "Site key"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "Goodwait API base URL.",
+      "default": "https://mvnfgrydpdwaatkcsrdd.supabase.co/functions/v1/goodwait",
+      "title": "API endpoint"
+    },
+    "ecpm": {
+      "type": "number",
+      "title": "Estimated eCPM (USD)",
+      "description": "Estimate only: your share per 1,000 paid views. Default 2.25 = half of the ad network's early publisher rate. Settled monthly earnings replace the estimate.",
+      "default": 2.25
+    },
+    "rotateSeconds": {
+      "type": "number",
+      "title": "Rotate ads on long turns (seconds)",
+      "description": "While Claude keeps working, show a fresh ad this often (minimum 15, the ad network's refresh floor). 0 turns rotation off. Rotation runs only while you are around (see Presence window), at most 16 times a turn.",
+      "default": 15
+    },
+    "presenceSeconds": {
+      "type": "number",
+      "title": "Presence window (seconds)",
+      "description": "Ads rotate only within this long after your last prompt, keystroke in the prompt box, or press in the Goodwait band or pane. After that one ad stays up and no new views are counted.",
+      "default": 120
+    },
+    "velocityAdUnit": {
+      "type": "string",
+      "title": "Velocity ad unit ID",
+      "description": "The Velocity native ad unit for this placement. Defaults to this mod's own unit. Empty = Velocity off (the API's own ads only).",
+      "default": "e7b24fe95681"
+    },
+    "invite": {
+      "type": "string",
+      "title": "Invite code",
+      "description": "A friend's 8-character invite code. Set it before your first run; they get 10% of what you earn, paid from our half, never yours.",
+      "default": ""
+    },
+    "velocitySiteUrl": {
+      "type": "string",
+      "title": "Velocity site URL",
+      "description": "The site or app URL this placement is registered under in Velocity.",
+      "default": "https://impact-wait.vercel.app"
+    }
+  },
+  "author": {
+    "name": "Never Peak"
+  }
+}
