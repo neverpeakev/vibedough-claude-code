@@ -152,6 +152,22 @@ function lifetime(st: GoodwaitStats | null, ecpm: number): { usd: number; isActu
   return { usd: actual + estSince, isActual: true, asOf, estSince }
 }
 
+// The settled rate's per-1,000 figure: cents can be fractional, so up to four decimals.
+function rateMoney(n: number): string {
+  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
+}
+
+// An earner's session estimate: only from the last confirmed settlement, never a configured eCPM.
+function earnerEst(me: GoodwaitEarner, paidViews: number): string {
+  return me.rate ? ` · est. ${money(paidViews * me.rate.per_view_usd)}` : ''
+}
+
+// A settlement period's day (stored as a date, midnight UTC): read in UTC so Pacific time doesn't show the day before.
+function periodDay(iso: string): string {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+}
+
 function shortDate(iso: string | null): string {
   if (!iso) return ''
   const d = new Date(iso)
@@ -417,7 +433,8 @@ async function reportImpression($: EngineInterface, cfg: Config, id: string) {
     await update($, sessionPaid, () => paid)
   }
   if (MILESTONES.includes(n)) {
-    $.ui.toast(`Your waits this session: ${n} · est. ${money(earned(paid, cfg.ecpm))} earned`, { timeoutMs: 6000 })
+    const me = await read($, earner)
+    $.ui.toast(me ? `Your waits this session: ${n} · ${num(paid)} paid${earnerEst(me, paid)}` : `Your waits this session: ${n} · est. ${money(earned(paid, cfg.ecpm))} earned`, { timeoutMs: 6000 })
   }
   // The public number moved; show it.
   fire(refreshStats($, cfg))
@@ -912,35 +929,49 @@ export const register: Register = (on, options) => {
             <Text> </Text>
           </Box>
         ) : null}
-        <Text bold>Goodwait · your earnings</Text>
-        <Text> </Text>
-        <Box flexDirection="row">
-          <Box flexDirection="column" width={col}>
-            <Text bold>{money(lifetimeEarned)}</Text>
-            <Text dimColor>{life.isActual ? `lifetime earnings (actual as of ${shortDate(life.asOf)})` : 'est. lifetime earnings'}</Text>
+        {me ? (
+          <Box flexDirection="column">
+            <Text dimColor wrap="wrap">
+              {me.rate
+                ? `Your rate: ${rateMoney(me.rate.per_1000_usd)} per 1,000 paid views, from the settlement for ${periodDay(me.rate.period_start)} - ${periodDay(me.rate.period_end)}: ${me.program.share_pct}% of what the network actually paid. Estimates use it until the next settlement.`
+                : 'Dollar amounts show after the first monthly settlement, when the network has paid. Until then we count your paid views.'}
+            </Text>
+            <Text dimColor>This session: {num(paidNow)} paid views{earnerEst(me, paidNow)} · live at vibedough.com/app</Text>
+            <Text> </Text>
           </Box>
-          <Box flexDirection="column" width={col}>
-            <Text bold>{money(earned(paidNow, cfg.ecpm))}</Text>
-            <Text dimColor>est. this session</Text>
+        ) : (
+          <Box flexDirection="column">
+            <Text bold>Goodwait · your earnings</Text>
+            <Text> </Text>
+            <Box flexDirection="row">
+              <Box flexDirection="column" width={col}>
+                <Text bold>{money(lifetimeEarned)}</Text>
+                <Text dimColor>{life.isActual ? `lifetime earnings (actual as of ${shortDate(life.asOf)})` : 'est. lifetime earnings'}</Text>
+              </Box>
+              <Box flexDirection="column" width={col}>
+                <Text bold>{money(earned(paidNow, cfg.ecpm))}</Text>
+                <Text dimColor>est. this session</Text>
+              </Box>
+              <Box flexDirection="column" width={col}>
+                <Text bold>{num(lifetimePaid)}</Text>
+                <Text dimColor>paid waits lifetime ({num(mine)} this session)</Text>
+              </Box>
+            </Box>
+            <Text> </Text>
+            {st.earnings.map(r => (
+              <Text dimColor key={`earn-${r.network}`}>
+                {r.network}: {money(Number(r.earned_usd))} actual{r.paid_waits !== null ? ` on ${num(r.paid_waits)} paid waits` : ''} ({r.source}, {shortDate(String(r.as_of))})
+              </Text>
+            ))}
+            {life.isActual && life.estSince > 0 ? <Text dimColor>+ est. {money(life.estSince)} for paid waits counted since that report</Text> : null}
+            <Text dimColor wrap="wrap">
+              Estimates use {money(cfg.ecpm)} per 1,000 paid views, your share at the ad network's early rate; change it in /config. Real money is settled monthly from what the network actually paid and replaces the estimate.
+            </Text>
+            <Text dimColor>
+              {pledgePct}% of net is pledged to {cause}: about {money(lifetimeEarned * (pledgePct / 100))} so far.
+            </Text>
           </Box>
-          <Box flexDirection="column" width={col}>
-            <Text bold>{num(lifetimePaid)}</Text>
-            <Text dimColor>paid waits lifetime ({num(mine)} this session)</Text>
-          </Box>
-        </Box>
-        <Text> </Text>
-        {st.earnings.map(r => (
-          <Text dimColor key={`earn-${r.network}`}>
-            {r.network}: {money(Number(r.earned_usd))} actual{r.paid_waits !== null ? ` on ${num(r.paid_waits)} paid waits` : ''} ({r.source}, {shortDate(String(r.as_of))})
-          </Text>
-        ))}
-        {life.isActual && life.estSince > 0 ? <Text dimColor>+ est. {money(life.estSince)} for paid waits counted since that report</Text> : null}
-        <Text dimColor wrap="wrap">
-          Estimates use {money(cfg.ecpm)} per 1,000 paid views, your share at the ad network's early rate; change it in /config. Real money is settled monthly from what the network actually paid and replaces the estimate.
-        </Text>
-        <Text dimColor>
-          {pledgePct}% of net is pledged to {cause}: about {money(lifetimeEarned * (pledgePct / 100))} so far.
-        </Text>
+        )}
         <Text> </Text>
         <Box flexDirection="row">
           <Box flexDirection="column" width={col}>
@@ -1038,7 +1069,8 @@ export const register: Register = (on, options) => {
     const opened = await $.ui.open({ id: PANE, title: 'Goodwait' })
     if (opened.isPlaced) return { text: 'Goodwait counter opened.' }
     const st = (await read($, stats)) ?? (await fetchStats($, cfg))
-    const line = st
+    const me = await read($, earner)
+    const line = me ? `${earnerLine(me)} · ${ACCOUNT_HOME}` : st
       ? `${num(st.total.sponsored_waits)} waits · est. ${money(earned(st.site ? st.site.paid_waits : 0, cfg.ecpm))} earned lifetime · ${HOME}`
       : `Counter: ${HOME}`
     return { text: `Goodwait · site ${cfg.site} · ${line}` }

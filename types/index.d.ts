@@ -72,6 +72,9 @@ export type GoodwaitEarner = {
   paid_usd: number
   payout_email: string | null
   est_pending_usd: number | null
+  // Your share per paid view from the newest settlement (50% of what the network actually paid). Null
+  // before the first settlement: then no dollar estimate is shown anywhere. Older servers leave it out.
+  rate?: { per_view_usd: number; per_1000_usd: number; network: string; period_start: string; period_end: string; settled_at: string } | null
   program: { share_pct: number; referral_pct?: number; min_payout_usd: number; hold_days?: number; daily_cap: number; min_gap_seconds: number; est_ecpm_usd: number | null }
   // Present once the balance model is live on the server; older servers leave them out.
   balance_usd?: number

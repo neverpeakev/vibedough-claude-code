@@ -227,6 +227,25 @@ test('the pane leads with your earnings and how payouts work', async ($, on) => 
   await ui.unmount()
 })
 
+test('an earner sees dollars only from the last settlement, never a configured eCPM', { options: { ecpm: 24.5 } }, async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on)
+  const w = world()
+  bottom(on, w)
+  await start($, clock)
+  let ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  expect(await ui.find({ type: 'Text', text: /Dollar amounts show after the first monthly settlement/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /per 1,000 paid views, your share at the ad network's early rate/ })).toBeUndefined()
+  expect(await ui.find({ type: 'Text', text: /est\. lifetime earnings/ })).toBeUndefined()
+  await ui.unmount()
+  w.me = { ...w.me, rate: { per_view_usd: 0.0025, per_1000_usd: 2.5, network: 'velocity', period_start: '2026-10-01', period_end: '2026-10-31', settled_at: '2026-11-03T00:00:00Z' } }
+  const r = await $.command.run({ command: 'earn', args: '', ...RUN })
+  ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  expect(await ui.find({ type: 'Text', text: /Your rate: \$2\.50 per 1,000 paid views, from the settlement for Oct 1 - Oct 31: 50% of what the network actually paid/ })).toBeDefined()
+  await ui.unmount()
+  void r
+})
+
 test('a subagent turn never takes over the band or the ad request', async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on)
