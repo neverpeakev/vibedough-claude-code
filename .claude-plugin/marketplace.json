@@ -12,6 +12,11 @@
       "name": "vibedough",
       "source": "./",
       "description": "One sponsored line under the spinner while Claude works; you keep half the ad revenue from your own views."
+    },
+    {
+      "name": "goodwait",
+      "source": "./",
+      "description": "Old name for vibedough, kept so older install lines still work. Installs the same plugin."
     }
   ]
 }
