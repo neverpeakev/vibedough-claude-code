@@ -14,7 +14,7 @@ const CLICK = 'https://events.vlcapi.net/click?r=abc'
 const BAND = { component: 'AbovePrompt', props: { hasSurvey: false, isWorking: true, maxRows: 10, bodyColumns: 120, scroll: { offset: 0, bodyRows: 9 }, view: {} } } as const
 const HOUSE_AD = {
   id: '44444444-4444-4444-8444-444444444444',
-  ad: { provider: 'house', sponsored: true, label: 'Sponsored', brand: 'Wispr Flow', headline: 'Talk instead of type', body: '', cta: 'Try free', clickUrl: 'https://x.supabase.co/functions/v1/goodwait/click?id=4', favicon: '' },
+  ad: { provider: 'house', sponsored: true, label: 'Sponsored', brand: 'Wispr Flow', headline: 'Talk instead of type', body: '', cta: 'Try free', clickUrl: 'https://x.supabase.co/functions/v1/vibedough/click?id=4', favicon: '' },
   impact: { cause_name: null, cause_url: null, unit_label: null, pledge_pct: null, donated_usd: 0, units_funded: null, donated_updated_at: null, sponsored_waits: 9 },
 }
 const STATS = { total: { sponsored_waits: 9, paid_waits: 0, clicks: 0, sites: 1 }, site: null, leaderboard: [], impact: HOUSE_AD.impact, earnings: [] }
@@ -120,7 +120,7 @@ test('with an ad unit: Velocity fills from this machine, its impression fires he
   expect(load.metadata.webMetadata.domainName).toBe('impact-wait.vercel.app')
   expect(calls(w, '/ad').length).toBe(0) // no fallback needed
 
-  const band = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const band = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await band.find({ type: 'Text', text: /^Neon$/ })).toBeDefined()
   expect((await band.find({ key: 'open' }))?.props.label).toBe('Try Neon')
   await band.press({ key: 'open' })

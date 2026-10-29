@@ -66,7 +66,7 @@ const MIN_ROTATE_SECONDS = 15 // Velocity's minimum refresh interval
 const MAX_ROTATIONS = 16
 const STATS_REFRESH_MS = 5 * 60 * 1000
 const HIDDEN_KEY = 'goodwait.hidden'
-const PANE = 'goodwait'
+const PANE = 'vibedough'
 const MILESTONES = [10, 50, 100, 250, 500, 1000]
 const EARNER_KEY = 'goodwait.earner'
 const TOKEN_RE = /^gw_[0-9a-f]{64}$/
@@ -83,16 +83,16 @@ const VELOCITY_TIMEOUT_MS = 2500
 const VELOCITY_DEFAULT_UNIT = 'e7b24fe95681'
 // A failed Velocity init is retried, at most this often.
 const VELOCITY_INIT_RETRY_MS = 60_000
-const MOD_VERSION = 'goodwait-claude-code/0.9.0'
+const MOD_VERSION = 'vibedough-claude-code/0.10.0'
 // The band shows the ad's body line only when there is room for it.
 const WIDE_COLUMNS = 110
 
-const current = atom({ plugin: 'goodwait', key: 'current' } as const, null)
-const isHidden = atom({ plugin: 'goodwait', key: 'isHidden' } as const, false)
-const sessionWaits = atom({ plugin: 'goodwait', key: 'sessionWaits' } as const, 0)
-const sessionPaid = atom({ plugin: 'goodwait', key: 'sessionPaid' } as const, 0)
-const stats = atom({ plugin: 'goodwait', key: 'stats' } as const, null)
-const earner = atom({ plugin: 'goodwait', key: 'earner' } as const, null)
+const current = atom({ plugin: 'vibedough', key: 'current' } as const, null)
+const isHidden = atom({ plugin: 'vibedough', key: 'isHidden' } as const, false)
+const sessionWaits = atom({ plugin: 'vibedough', key: 'sessionWaits' } as const, 0)
+const sessionPaid = atom({ plugin: 'vibedough', key: 'sessionPaid' } as const, 0)
+const stats = atom({ plugin: 'vibedough', key: 'stats' } as const, null)
+const earner = atom({ plugin: 'vibedough', key: 'earner' } as const, null)
 
 type Config = { site: string; endpoint: string; ecpm: number; rotateSeconds: number; presenceSeconds: number; velocityAdUnit: string; velocitySiteUrl: string; invite: string; accountCode: string }
 
@@ -731,8 +731,8 @@ export const register: Register = (on, options) => {
     await update($, sessionWaits, () => 0)
     await update($, sessionPaid, () => 0)
     await $.command.register({
-      name: 'goodwait',
-      description: 'Goodwait: open the counter pane, or turn the sponsored line on or off.',
+      name: 'vibedough',
+      description: 'Vibedough: open your earnings pane, or turn the sponsored line on or off.',
       argumentHint: '[on|off]',
     })
     await $.command.register({
@@ -848,7 +848,7 @@ export const register: Register = (on, options) => {
             hotkey="2"
             plain
             dimColor
-            onPress={() => $.ui.open({ id: PANE, title: 'Goodwait' })}
+            onPress={() => $.ui.open({ id: PANE, title: 'Vibedough' })}
           />
           <Text> </Text>
           <Button
@@ -859,12 +859,12 @@ export const register: Register = (on, options) => {
             dimColor
             onPress={async () => {
               await setHidden($, cfg, true)
-              $.ui.toast('Goodwait hidden. /goodwait on brings it back.')
+              $.ui.toast('Vibedough hidden. /vibedough on brings it back.')
             }}
           />
         </Box>
         <Text dimColor wrap="truncate-end">
-          {me ? earnerLine(me) : `${lifeLabel} · est. ${money(earned(paidNow, cfg.ecpm))} this session`} · {num(impact.sponsored_waits)} waits so far{mode}
+          {me ? earnerLine(me) : `${lifeLabel} · est. ${money(earned(paidNow, cfg.ecpm))} this session · ${num(impact.sponsored_waits)} waits across Vibedough`}{mode}
         </Text>
       </Box>
     )
@@ -941,7 +941,7 @@ export const register: Register = (on, options) => {
           </Box>
         ) : (
           <Box flexDirection="column">
-            <Text bold>Goodwait · your earnings</Text>
+            <Text bold>Vibedough · your earnings</Text>
             <Text> </Text>
             <Box flexDirection="row">
               <Box flexDirection="column" width={col}>
@@ -1045,7 +1045,7 @@ export const register: Register = (on, options) => {
     if (args) return { text: 'Use /earn for your balance, /earn link VD-XXXX-XXXX, /earn paypal you@example.com, /earn donate [amount], /earn exit cash|donate, or /earn refer.' }
     const me = (await fetchEarner($, cfg)) ?? (await read($, earner))
     fire(refreshStats($, cfg))
-    await $.ui.open({ id: PANE, title: 'Goodwait' })
+    await $.ui.open({ id: PANE, title: 'Vibedough' })
     if (!me) return { text: 'Earning is not set up on this install yet. Try again in a minute.' }
     const payout = me.auto_exit === 'donate' ? 'earnings go to charity: water' : me.payout_email ? `PayPal ${me.payout_email}` : 'no PayPal set (/earn paypal you@example.com)'
     const given = me.donated_usd ? ` · ${money(me.donated_usd)} donated` : ''
@@ -1055,24 +1055,24 @@ export const register: Register = (on, options) => {
     return { text: `${earnerLine(me)} · ${money(me.paid_usd)} paid out${given} · ${payout}${draw}${invite}${acct}` }
   })
 
-  on('command.run', { command: 'goodwait' }, async ($, e) => {
+  on('command.run', { command: 'vibedough' }, async ($, e) => {
     const arg = e.args.trim().toLowerCase()
     if (arg === 'off') {
       await setHidden($, cfg, true)
-      return { text: 'Goodwait is off. /goodwait on turns it back on.' }
+      return { text: 'Vibedough is off. /vibedough on turns it back on.' }
     }
     if (arg === 'on') {
       await setHidden($, cfg, false)
-      return { text: `Goodwait is on (site: ${cfg.site}). The sponsored line shows while Claude works.` }
+      return { text: `Vibedough is on (site: ${cfg.site}). The sponsored line shows while Claude works.` }
     }
     fire(refreshStats($, cfg))
-    const opened = await $.ui.open({ id: PANE, title: 'Goodwait' })
-    if (opened.isPlaced) return { text: 'Goodwait counter opened.' }
+    const opened = await $.ui.open({ id: PANE, title: 'Vibedough' })
+    if (opened.isPlaced) return { text: 'Vibedough earnings opened.' }
     const st = (await read($, stats)) ?? (await fetchStats($, cfg))
     const me = await read($, earner)
     const line = me ? `${earnerLine(me)} · ${ACCOUNT_HOME}` : st
       ? `${num(st.total.sponsored_waits)} waits · est. ${money(earned(st.site ? st.site.paid_waits : 0, cfg.ecpm))} earned lifetime · ${HOME}`
       : `Counter: ${HOME}`
-    return { text: `Goodwait · site ${cfg.site} · ${line}` }
+    return { text: `Vibedough · site ${cfg.site} · ${line}` }
   })
 }

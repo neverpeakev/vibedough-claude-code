@@ -92,7 +92,7 @@ export type GoodwaitEarner = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'goodwait': {
+    'vibedough': {
       current: GoodwaitCurrent | null
       isHidden: boolean
       sessionWaits: number

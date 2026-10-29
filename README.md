@@ -6,14 +6,13 @@ While your agent works, this mod shows one labeled sponsored line above the prom
 
 The full source is here so you can check exactly what it does. It never reads your files, your code or anything the agent writes.
 
-> Inside Claude Code the mod still calls itself Goodwait (`/goodwait`, the pane title) until the rename ships.
 
 ## Install
 
 The quickest way: create a free account at **[vibedough.com/app](https://vibedough.com/app)**. On a computer, the page shows one line with your own install code. Paste it into your terminal:
 
 ```bash
-claude plugin install goodwait --marketplace neverpeakev/vibedough-claude-code --config accountCode=VD-XXXX-XXXX
+claude plugin install vibedough --marketplace neverpeakev/vibedough-claude-code --config accountCode=VD-XXXX-XXXX
 ```
 
 Then start Claude Code (or run `/reload-plugins` in a session that's already open). The install links itself to your account, so your earnings, PayPal email and W-9 all live in one place. It needs Claude Code 2.1.275 or later (`claude update`).
@@ -21,7 +20,7 @@ Then start Claude Code (or run `/reload-plugins` in a session that's already ope
 Already in Claude Code? Install from inside it, then link:
 
 ```
-/plugin install goodwait --marketplace neverpeakev/vibedough-claude-code
+/plugin install vibedough --marketplace neverpeakev/vibedough-claude-code
 /earn link VD-XXXX-XXXX
 ```
 
@@ -67,7 +66,7 @@ The mod makes these requests and no others.
 - A random per-session id, your earner id, the ad unit and your timezone.
 - The ad's impression URL, after the ad has been on screen for a second.
 
-**To the Vibedough API** (`mvnfgrydpdwaatkcsrdd.supabase.co/functions/v1/goodwait`):
+**To the Vibedough API** (`mvnfgrydpdwaatkcsrdd.supabase.co/functions/v1/vibedough`):
 - `/earner`: a one-time sign-up, plus the invite code if you set one.
 - `/ad`: used only when Velocity has no ad. It sends the first 500 characters of your prompt, the site key, the session id and your earner token.
 - `/event`, `/impression/external`: that a view happened, so it counts and is credited.
@@ -81,7 +80,7 @@ Like any web request, both servers see your IP address. Your PayPal email is sto
 
 ## Settings
 
-In `/config` under **goodwait**:
+In `/config` under **vibedough**:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
@@ -92,7 +91,7 @@ In `/config` under **goodwait**:
 | Velocity ad unit ID | Vibedough's unit | Clear it to use only the Vibedough API's ads |
 | Site key | `claude-code` | `sandbox` shows a test ad and counts nothing |
 
-Turn the line off any time with `/goodwait off`, or press `h` on the band. `/goodwait on` brings it back.
+Turn the line off any time with `/vibedough off`, or press `h` on the band. `/vibedough on` brings it back.
 
 ## Development
 

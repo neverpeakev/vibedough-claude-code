@@ -7,7 +7,7 @@ const TOKEN = 'gw_' + 'ab'.repeat(32)
 
 const AD_RESPONSE = {
   id: AD_ID,
-  ad: { provider: 'velocity', sponsored: true, label: 'Sponsored', brand: 'Neon', headline: 'Serverless Postgres', body: 'Scale to zero.', cta: 'Try it', clickUrl: `https://x.supabase.co/functions/v1/goodwait/click?id=${AD_ID}`, favicon: '' },
+  ad: { provider: 'velocity', sponsored: true, label: 'Sponsored', brand: 'Neon', headline: 'Serverless Postgres', body: 'Scale to zero.', cta: 'Try it', clickUrl: `https://x.supabase.co/functions/v1/vibedough/click?id=${AD_ID}`, favicon: '' },
   impact: { cause_name: null, cause_url: null, unit_label: null, pledge_pct: null, donated_usd: 0, units_funded: null, donated_updated_at: null, sponsored_waits: 50 },
   sandbox: false,
 }
@@ -19,7 +19,7 @@ const STATS = {
   earnings: [],
 }
 const BAND = { component: 'AbovePrompt', props: { hasSurvey: false, isWorking: true, maxRows: 10, bodyColumns: 120, scroll: { offset: 0, bodyRows: 9 }, view: {} } } as const
-const PANE = { component: 'Pane', requestId: 'goodwait', props: { title: 'Goodwait', isFocused: false, bodyColumns: 100, placement: 'dock', scroll: { offset: 0, bodyRows: 40 }, view: {} } } as const
+const PANE = { component: 'Pane', requestId: 'vibedough', props: { title: 'Vibedough', isFocused: false, bodyColumns: 100, placement: 'dock', scroll: { offset: 0, bodyRows: 40 }, view: {} } } as const
 const RUN = { origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } } as const
 
 type World = {
@@ -161,8 +161,8 @@ test('ad requests carry the earner token; a credited view refreshes the balance 
 
   await clock.advance(1000) // the impression, credited
   await clock.settle()
-  const band = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
-  expect(await band.find({ type: 'Text', text: /^You: 1 paid views today · 1 pending · \$0\.00 owed · 50 waits so far/ })).toBeDefined()
+  const band = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
+  expect(await band.find({ type: 'Text', text: /^You: 1 paid views today · 1 pending · \$0\.00 owed$/ })).toBeDefined()
   await band.unmount()
   // The status line shows the earner's own balance, not the site's total.
   expect(w.status.at(-1)).toBe('1 paid views today · $0.00 owed')
@@ -179,7 +179,7 @@ test('with no earner (sign-up refused) the band falls back to the old line and a
   await clock.advance(0)
   await clock.settle()
   expect(JSON.parse(w.fetched.find(f => f.url.endsWith('/ad'))!.body ?? '{}').earner).toBeUndefined()
-  const band = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const band = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await band.find({ type: 'Text', text: /lifetime · est\. \$0\.00 this session/ })).toBeDefined()
   expect(w.status.at(-1)).toMatch(/^50 waits · /) // no earner: the site line
   await band.unmount()
@@ -217,7 +217,7 @@ test('the pane leads with your earnings and how payouts work', async ($, on) => 
   w.me = { ...w.me, owed_usd: 12.5, paid_usd: 3, pending_waits: 40, credited_today: 7, credited_total: 300, est_pending_usd: 0.08 }
   bottom(on, w)
   await start($, clock)
-  const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...PANE })
   expect(await ui.find({ type: 'Text', text: /^You earn 50% of the ad revenue from your waits$/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /^\$12\.50$/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /paid views waiting to settle \(est\. \$0\.08\)/ })).toBeDefined()
@@ -233,14 +233,14 @@ test('an earner sees dollars only from the last settlement, never a configured e
   const w = world()
   bottom(on, w)
   await start($, clock)
-  let ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  let ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...PANE })
   expect(await ui.find({ type: 'Text', text: /Dollar amounts show after the first monthly settlement/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /per 1,000 paid views, your share at the ad network's early rate/ })).toBeUndefined()
   expect(await ui.find({ type: 'Text', text: /est\. lifetime earnings/ })).toBeUndefined()
   await ui.unmount()
   w.me = { ...w.me, rate: { per_view_usd: 0.0025, per_1000_usd: 2.5, network: 'velocity', period_start: '2026-10-01', period_end: '2026-10-31', settled_at: '2026-11-03T00:00:00Z' } }
   const r = await $.command.run({ command: 'earn', args: '', ...RUN })
-  ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...PANE })
   expect(await ui.find({ type: 'Text', text: /Your rate: \$2\.50 per 1,000 paid views, from the settlement for Oct 1 - Oct 31: 50% of what the network actually paid/ })).toBeDefined()
   await ui.unmount()
   void r

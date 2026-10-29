@@ -11,7 +11,7 @@ const adResponse = () => {
   const id = `33333333-3333-4333-8333-${String(n).padStart(12, '0')}`
   return {
     id,
-    ad: { provider: 'idlen', sponsored: true, label: 'Sponsored', brand: `Brand ${n}`, headline: `Headline ${n}`, body: '', cta: 'Go', clickUrl: `https://x.supabase.co/functions/v1/goodwait/click?id=${id}`, favicon: '' },
+    ad: { provider: 'idlen', sponsored: true, label: 'Sponsored', brand: `Brand ${n}`, headline: `Headline ${n}`, body: '', cta: 'Go', clickUrl: `https://x.supabase.co/functions/v1/vibedough/click?id=${id}`, favicon: '' },
     impact: { cause_name: null, cause_url: null, unit_label: null, pledge_pct: null, donated_usd: 0, units_funded: null, donated_updated_at: null, sponsored_waits: n },
     sandbox: false,
   }
@@ -91,7 +91,7 @@ test('a long turn rotates every 15s while the person is around, then holds one a
   // Nobody around: no more ads, no more views, however long the turn runs.
   await tick(clock, 10 * 60_000)
   expect([ads(fetched), events(fetched)]).toEqual([9, 9])
-  const band = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const band = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await band.find({ type: 'Text', text: /^Brand 9$/ })).toBeDefined() // the last ad stays up
   await band.unmount()
 

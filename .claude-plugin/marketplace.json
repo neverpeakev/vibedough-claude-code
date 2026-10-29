@@ -1,12 +1,17 @@
 {
   "name": "vibedough",
-  "owner": { "name": "Never Peak", "email": "kevin@neverpeakmarketing.com" },
-  "metadata": { "description": "Vibedough: get paid while Claude Code thinks." },
+  "owner": {
+    "name": "Never Peak",
+    "email": "kevin@neverpeakmarketing.com"
+  },
+  "metadata": {
+    "description": "Vibedough: get paid while Claude Code thinks."
+  },
   "plugins": [
     {
-      "name": "goodwait",
+      "name": "vibedough",
       "source": "./",
-      "description": "A sponsored line above the prompt while Claude works; you keep half the ad revenue from your own views."
+      "description": "One sponsored line under the spinner while Claude works; you keep half the ad revenue from your own views."
     }
   ]
 }

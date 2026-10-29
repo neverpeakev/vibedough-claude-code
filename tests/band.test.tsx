@@ -13,7 +13,7 @@ const AD_RESPONSE = {
     headline: 'Plan every road trip in one tap.',
     body: 'Free courses in math, science and more.',
     cta: 'Learn more',
-    clickUrl: `https://mvnfgrydpdwaatkcsrdd.supabase.co/functions/v1/goodwait/click?id=${AD_ID}`,
+    clickUrl: `https://mvnfgrydpdwaatkcsrdd.supabase.co/functions/v1/vibedough/click?id=${AD_ID}`,
     favicon: '',
   },
   impact: {
@@ -65,9 +65,9 @@ const STATS = {
 
 const PANE = {
   component: 'Pane',
-  requestId: 'goodwait',
+  requestId: 'vibedough',
   props: {
-    title: 'Goodwait',
+    title: 'Vibedough',
     isFocused: false,
     bodyColumns: 100,
     placement: 'dock',
@@ -119,7 +119,7 @@ test('nothing is drawn before a turn', async ($, on) => {
   bottom(on, seen())
   await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'goodwait', surface, ...BAND })
+    const ui = await $.ui.mount({ plugin: 'vibedough', surface, ...BAND })
     expect(await ui.find({ key: 'open' })).toBeUndefined()
     await ui.unmount()
   }
@@ -146,11 +146,11 @@ test('the line shows during a turn, counts after one second, clears after the li
   expect(typeof sent.sessionId).toBe('string')
 
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'goodwait', surface, ...BAND })
+    const ui = await $.ui.mount({ plugin: 'vibedough', surface, ...BAND })
     expect(await ui.find({ type: 'Link' })).toBeUndefined() // no raw redirect URL on the band
     expect((await ui.find({ key: 'open' }))?.props.label).toBe('Learn more')
     expect(await ui.find({ type: 'Text', text: /Fuel Path Pro/ })).toBeDefined()
-    expect(await ui.find({ type: 'Text', text: /^est\. \$0\.98 lifetime · est\. \$0\.00 this session · 1,234 waits so far/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /^est\. \$0\.98 lifetime · est\. \$0\.00 this session · 1,234 waits across Vibedough/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /Khan Academy/ })).toBeUndefined() // no cause line on the band
     expect(await ui.find({ key: 'hide' })).toBeDefined()
     await ui.unmount()
@@ -167,14 +167,14 @@ test('the line shows during a turn, counts after one second, clears after the li
   // The reply lands; the line lingers, then goes.
   await $.turn.complete({ answer: 'done', durationMs: 5000, isAborted: false, turnId: 't1', reason: 'answer' })
   {
-    const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+    const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
     expect(await ui.find({ key: 'open' })).toBeDefined()
     await ui.unmount()
   }
   await clock.advance(4000)
   await clock.settle()
   {
-    const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+    const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
     expect(await ui.find({ key: 'open' })).toBeUndefined()
     await ui.unmount()
   }
@@ -192,7 +192,7 @@ test('an ad that arrives after the reply is never shown', async ($, on) => {
   await $.turn.complete({ answer: 'ok', durationMs: 10, isAborted: false, turnId: 't2', reason: 'answer' })
   await clock.advance(0)
   await clock.settle()
-  const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await ui.find({ key: 'open' })).toBeUndefined()
   await ui.unmount()
   await clock.advance(1000)
@@ -200,7 +200,7 @@ test('an ad that arrives after the reply is never shown', async ($, on) => {
   expect(fetched.some(f => f.url.endsWith('/event'))).toBe(false)
 })
 
-test('hide persists across sessions and /goodwait on brings it back', async ($, on) => {
+test('hide persists across sessions and /vibedough on brings it back', async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on)
   const s = seen()
@@ -211,7 +211,7 @@ test('hide persists across sessions and /goodwait on brings it back', async ($, 
   await clock.advance(0)
   await clock.settle()
 
-  const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await ui.find({ key: 'open' })).toBeDefined()
   await ui.press({ key: 'hide' })
   expect(await ui.find({ key: 'open' })).toBeUndefined()
@@ -225,14 +225,14 @@ test('hide persists across sessions and /goodwait on brings it back', async ($, 
   const adCalls = fetched.filter(f => f.url.endsWith('/ad')).length
   expect(adCalls).toBe(1) // no second ad request while hidden
   {
-    const ui2 = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+    const ui2 = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
     expect(await ui2.find({ key: 'open' })).toBeUndefined()
     await ui2.unmount()
   }
 
-  const on_ = await $.command.run({ command: 'goodwait', args: 'on', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  const on_ = await $.command.run({ command: 'vibedough', args: 'on', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(on_.text).toMatch(/is on/)
-  const stats = await $.command.run({ command: 'goodwait', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  const stats = await $.command.run({ command: 'vibedough', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(stats.text).toMatch(/opened/)
 })
 
@@ -247,9 +247,9 @@ test('status line carries the public counter from session start, and clears when
   expect(s.fetched.some(f => f.url.includes('/stats?site=claude-code'))).toBe(true)
   expect(s.status.at(-1)).toBe('1,234 waits · est. $0.98 earned')
 
-  await $.command.run({ command: 'goodwait', args: 'off', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  await $.command.run({ command: 'vibedough', args: 'off', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(s.status.at(-1)).toBeUndefined()
-  await $.command.run({ command: 'goodwait', args: 'on', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  await $.command.run({ command: 'vibedough', args: 'on', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(s.status.at(-1)).toBe('1,234 waits · est. $0.98 earned')
 })
 
@@ -264,7 +264,7 @@ test('the band shows the body line only when wide, and "open" goes through the c
   await clock.settle()
 
   // Wide (120 columns): the ad's body line shows beside the headline.
-  const wide = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const wide = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await wide.find({ type: 'Text', text: /Free courses in math/ })).toBeDefined()
   expect(await wide.find({ key: 'open' })).toBeDefined()
   expect(await wide.find({ key: 'counter' })).toBeDefined()
@@ -272,11 +272,11 @@ test('the band shows the body line only when wide, and "open" goes through the c
   await wide.press({ key: 'open' })
   expect(s.runs[0]).toEqual(['open', AD_RESPONSE.ad.clickUrl])
   await wide.press({ key: 'counter' })
-  expect(s.opened).toContain('goodwait')
+  expect(s.opened).toContain('vibedough')
   await wide.unmount()
 
   // Narrow (80 columns): headline and link only, no body.
-  const narrow = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', component: 'AbovePrompt', props: { ...BAND.props, bodyColumns: 80 } })
+  const narrow = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', component: 'AbovePrompt', props: { ...BAND.props, bodyColumns: 80 } })
   expect(await narrow.find({ key: 'open' })).toBeDefined()
   expect(await narrow.find({ type: 'Text', text: /Free courses in math/ })).toBeUndefined()
   await narrow.unmount()
@@ -305,7 +305,7 @@ test('a toast marks the 10th wait of the session', { options: { ecpm: 24.5 } }, 
   expect(s.toasts.some(t => t.startsWith('Your waits this session: 9'))).toBe(false)
 })
 
-test('/goodwait opens the pane, which shows totals, the leaderboard and this session', { options: { ecpm: 24.5 } }, async ($, on) => {
+test('/vibedough opens the pane, which shows totals, the leaderboard and this session', { options: { ecpm: 24.5 } }, async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on)
   const s = seen()
@@ -313,12 +313,12 @@ test('/goodwait opens the pane, which shows totals, the leaderboard and this ses
   await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
   await clock.advance(0)
   await clock.settle()
-  const run = await $.command.run({ command: 'goodwait', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 160 } })
+  const run = await $.command.run({ command: 'vibedough', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 160 } })
   expect(run.text).toMatch(/opened/)
-  expect(s.opened).toContain('goodwait')
+  expect(s.opened).toContain('vibedough')
 
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'goodwait', surface, ...PANE })
+    const ui = await $.ui.mount({ plugin: 'vibedough', surface, ...PANE })
     expect(await ui.find({ type: 'Text', text: /^\$0\.98$/ })).toBeDefined() // 40 paid waits x $24.50 eCPM
     expect(await ui.find({ type: 'Text', text: /est. lifetime earnings/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /est. this session/ })).toBeDefined()
@@ -352,11 +352,11 @@ test('a recorded dashboard actual replaces the estimate, plus an estimate for wa
   await $.turn.start({ text: 'what is a monad', turnId: 't9' })
   await clock.advance(0)
   await clock.settle()
-  const band = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...BAND })
+  const band = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...BAND })
   expect(await band.find({ type: 'Text', text: /^\$0\.80 lifetime \(actual as of Oct 5\)/ })).toBeDefined()
   await band.unmount()
 
-  const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...PANE })
   expect(await ui.find({ type: 'Text', text: /lifetime earnings \(actual as of Oct 5\)/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /idlen: \$0\.60 actual on 32 paid waits \(dashboard, Oct 5\)/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /\+ est\. \$0\.20 for paid waits counted since/ })).toBeDefined()
@@ -370,7 +370,7 @@ test('the default estimate is the conservative share rate, and the pane says set
   await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
   await clock.advance(0)
   await clock.settle()
-  const ui = await $.ui.mount({ plugin: 'goodwait', surface: 'terminal', ...PANE })
+  const ui = await $.ui.mount({ plugin: 'vibedough', surface: 'terminal', ...PANE })
   expect(await ui.find({ type: 'Text', text: /\$2\.25 per 1,000 paid views.*replaces the estimate/ })).toBeDefined()
   await ui.unmount()
 })
